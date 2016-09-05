@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">XperiaSettings</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- General settings -->
+    <string name="pref_description_otgswitch">Enable USB OTG Mode this should only be enabled when needed and be disabled before submerging the phone into water.</string>
+    <string name="pref_title_otgswitch">Enable OTG</string>
+
+</resources>
