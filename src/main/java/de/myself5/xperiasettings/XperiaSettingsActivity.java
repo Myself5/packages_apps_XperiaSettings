@@ -13,10 +13,11 @@ import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
 /**
@@ -34,6 +35,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
 
     protected static String mXperiaOTGPath;
     private static FragmentManager mFragmentManager;
+    protected static AppCompatPreferenceActivity mActivity;
     /**
      * A preference value change listener that updates the preference's summary
      * to reflect its new value.
@@ -69,6 +71,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setupActionBar();
+        mActivity = this;
         addPreferencesFromResource(R.xml.pref_general);
         findPreference("otg_switch").setOnPreferenceChangeListener(mPreferenceListener);
         mXperiaOTGPath = getSystemProperty("ro.xperia.otgpath");
@@ -120,34 +123,36 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
             fos.write(string.getBytes(Charset.forName("UTF-8")));
             fos.close();
         } catch (Exception e) {
-            // fail silently
+            Log.e("XperiaSettings", "writeSysFs failed with error: " + e.getMessage());
         }
     }
 
     private static Boolean readSysFs(String filePath) {
         int value = 0;
-        String result = "";
+        String text = null;
         File file = new File(filePath);
         if (file.exists()) {
-            FileInputStream fis = null;
             try {
+                FileInputStream fs = new FileInputStream(file);
+                InputStreamReader sr = new InputStreamReader(fs);
+                BufferedReader br = new BufferedReader(sr);
+                text = br.readLine();
 
-                fis = new FileInputStream(file);
-                char current;
-                while (fis.available() > 0) {
-                    current = (char) fis.read();
-                    result = result + String.valueOf(current);
+                br.close();
+                sr.close();
+                fs.close();
+            } catch (Exception ex) {
+                Log.e("XperiaSettings", ex.getMessage());
+                ex.printStackTrace();
+            }
 
+            if (text != null) {
+                try {
+                    value = Integer.parseInt(text);
+                } catch (NumberFormatException nfe) {
+                    Log.e("XperiaSettings", nfe.getMessage());
+                    value = 0;
                 }
-                value = Integer.parseInt(result);
-            } catch (Exception e) {
-                Log.d("XperiaSettings", e.toString());
-            } finally {
-                if (fis != null)
-                    try {
-                        fis.close();
-                    } catch (IOException ignored) {
-                    }
             }
         }
         return value == 1;
@@ -162,7 +167,6 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return value;
     }
 

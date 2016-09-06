@@ -4,7 +4,11 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
+import android.util.Log;
 
 /**
  * Created by myself5 on 9/6/16.
@@ -25,7 +29,9 @@ public class EnableOTGDialog extends DialogFragment {
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
+                        SwitchPreference mSwitch = (SwitchPreference)
+                                XperiaSettingsActivity.mActivity.findPreference("otg_switch");
+                        mSwitch.setChecked(false);
                     }
                 });
         // Create the AlertDialog object and return it
