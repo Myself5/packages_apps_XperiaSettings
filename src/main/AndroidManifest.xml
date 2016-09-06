@@ -25,7 +25,7 @@
                 android:value="com.android.settings.category.device" />
             <meta-data
                 android:name="com.android.settings.icon"
-                android:resource="@drawable/ic_info_black_24dp" />
+                android:resource="@drawable/ic_xperia_settings" />
         </activity>
     </application>
 </manifest>
