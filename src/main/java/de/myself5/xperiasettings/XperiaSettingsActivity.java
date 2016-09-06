@@ -14,9 +14,11 @@ import android.preference.PreferenceFragment;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
@@ -33,6 +35,7 @@ import java.nio.charset.Charset;
  */
 public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
 
+    private static String TAG = "XperiaSettings";
     protected static String mXperiaOTGPath;
     private static FragmentManager mFragmentManager;
     protected static AppCompatPreferenceActivity mActivity;
@@ -49,6 +52,14 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
                         confirmEnablingOTG();
                     } else {
                         writeSysFs(mXperiaOTGPath, "0");
+                    }
+                    break;
+                case "adbon_switch":
+                    if ((Boolean) value) {
+                        confirmEnablingADBON();
+                    } else {
+                        setSystemProperty("service.adb.tcp.port", "-1");
+                        restartADBD();
                     }
                     break;
                 default:
@@ -74,6 +85,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         mActivity = this;
         addPreferencesFromResource(R.xml.pref_general);
         findPreference("otg_switch").setOnPreferenceChangeListener(mPreferenceListener);
+        findPreference("adbon_switch").setOnPreferenceChangeListener(mPreferenceListener);
         mXperiaOTGPath = getSystemProperty("ro.xperia.otgpath");
         mFragmentManager = getFragmentManager();
 
@@ -123,7 +135,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
             fos.write(string.getBytes(Charset.forName("UTF-8")));
             fos.close();
         } catch (Exception e) {
-            Log.e("XperiaSettings", "writeSysFs failed with error: " + e.getMessage());
+            Log.e(TAG, "writeSysFs failed with error: " + e.getMessage());
         }
     }
 
@@ -142,7 +154,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
                 sr.close();
                 fs.close();
             } catch (Exception ex) {
-                Log.e("XperiaSettings", ex.getMessage());
+                Log.e(TAG, ex.getMessage());
                 ex.printStackTrace();
             }
 
@@ -150,7 +162,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
                 try {
                     value = Integer.parseInt(text);
                 } catch (NumberFormatException nfe) {
-                    Log.e("XperiaSettings", nfe.getMessage());
+                    Log.e(TAG, nfe.getMessage());
                     value = 0;
                 }
             }
@@ -160,7 +172,6 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
 
     private static String getSystemProperty(String key) {
         String value = null;
-
         try {
             value = (String) Class.forName("android.os.SystemProperties")
                     .getMethod("get", String.class).invoke(null, key);
@@ -170,8 +181,41 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         return value;
     }
 
+    protected static void setSystemProperty(String key, String value) {
+        try {
+            Class.forName("android.os.SystemProperties")
+                    .getMethod("set", String.class, String.class).invoke(null, key, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    protected static void restartADBD(){
+        try{
+            Process su = Runtime.getRuntime().exec("su");
+            DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
+
+            outputStream.writeBytes("adbd stop\n");
+            outputStream.flush();
+
+            outputStream.writeBytes("adbd start\n");
+            outputStream.flush();
+
+            outputStream.writeBytes("exit\n");
+            outputStream.flush();
+            su.waitFor();
+        }catch(IOException | InterruptedException e){
+            Log.e(TAG, e.getMessage());
+        }
+    }
+
     private static void confirmEnablingOTG() {
         DialogFragment newFragment = new EnableOTGDialog();
+        newFragment.show(mFragmentManager, "missiles");
+    }
+
+    private static void confirmEnablingADBON() {
+        DialogFragment newFragment = new EnableADBONDialog();
         newFragment.show(mFragmentManager, "missiles");
     }
 }
