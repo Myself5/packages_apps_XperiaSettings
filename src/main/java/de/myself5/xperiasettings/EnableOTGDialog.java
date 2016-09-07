@@ -21,7 +21,8 @@ public class EnableOTGDialog extends DialogFragment {
                 .setTitle(R.string.pref_title_otgswitch)
                 .setPositiveButton(R.string.enable, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        XperiaSettingsActivity.writeSysFs(XperiaSettingsActivity.mXperiaOTGPath, "1");
+                        /*XperiaSettingsActivity.writeSysFs(XperiaSettingsActivity.mXperiaOTGPath, "1");*/
+                        XperiaSettingsActivity.setSystemProperty(XperiaSettingsActivity.PREF_ID_POLL_ENABLED, "true");
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

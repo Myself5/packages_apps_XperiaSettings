@@ -21,8 +21,8 @@ public class EnableADBONDialog extends DialogFragment {
                 .setTitle(R.string.pref_title_adbonswitch)
                 .setPositiveButton(R.string.enable, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        XperiaSettingsActivity.setSystemProperty("service.adb.tcp.port", "5555");
-                        XperiaSettingsActivity.restartADBD();
+                        XperiaSettingsActivity.setSystemProperty(XperiaSettingsActivity.PREF_ADB_NETWORK, "5555");
+/*                        XperiaSettingsActivity.restartADBD();*/
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

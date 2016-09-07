@@ -11,16 +11,6 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
-import android.util.Log;
-
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -35,8 +25,10 @@ import java.nio.charset.Charset;
  */
 public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
 
-    private static String TAG = "XperiaSettings";
-    protected static String mXperiaOTGPath;
+    /*    private static String TAG = "XperiaSettings";
+        protected static String mXperiaOTGPath;*/
+    protected static String PREF_ID_POLL_ENABLED = "sys.device.usb.id_poll_enable";
+    protected static String PREF_ADB_NETWORK = "adb.network.port";
     private static FragmentManager mFragmentManager;
     protected static AppCompatPreferenceActivity mActivity;
     /**
@@ -51,15 +43,16 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
                     if ((Boolean) value) {
                         confirmEnablingOTG();
                     } else {
-                        writeSysFs(mXperiaOTGPath, "0");
+                        /*writeSysFs(mXperiaOTGPath, "0");*/
+                        setSystemProperty(PREF_ID_POLL_ENABLED, "false");
                     }
                     break;
                 case "adbon_switch":
                     if ((Boolean) value) {
                         confirmEnablingADBON();
                     } else {
-                        setSystemProperty("service.adb.tcp.port", "-1");
-                        restartADBD();
+                        setSystemProperty(PREF_ADB_NETWORK, "-1");
+                        /*restartADBD();*/
                     }
                     break;
                 default:
@@ -86,7 +79,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         addPreferencesFromResource(R.xml.pref_general);
         findPreference("otg_switch").setOnPreferenceChangeListener(mPreferenceListener);
         findPreference("adbon_switch").setOnPreferenceChangeListener(mPreferenceListener);
-        mXperiaOTGPath = getSystemProperty("ro.xperia.otgpath");
+        /*mXperiaOTGPath = getSystemProperty("ro.xperia.otgpath");*/
         mFragmentManager = getFragmentManager();
 
         /** Set, only for OTG, the value to the sysfs value
@@ -98,7 +91,13 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putBoolean("otg_switch", readSysFs(mXperiaOTGPath));
+        /*editor.putBoolean("otg_switch", readSysFs(mXperiaOTGPath));*/
+        String idPoll = getSystemProperty(PREF_ID_POLL_ENABLED);
+        String adbN = getSystemProperty(PREF_ADB_NETWORK);
+        if (idPoll != null)
+            editor.putBoolean("otg_switch", Boolean.valueOf(idPoll));
+        if (adbN != null)
+            editor.putBoolean("adbon_switch", adbN.equals("5555"));
         editor.apply();
     }
 
@@ -129,7 +128,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         return PreferenceFragment.class.getName().equals(fragmentName);
     }
 
-    protected static void writeSysFs(String path, String string) {
+/*    protected static void writeSysFs(String path, String string) {
         try {
             FileOutputStream fos = new FileOutputStream(path);
             fos.write(string.getBytes(Charset.forName("UTF-8")));
@@ -168,7 +167,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
             }
         }
         return value == 1;
-    }
+    }*/
 
     private static String getSystemProperty(String key) {
         String value = null;
@@ -190,7 +189,7 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         }
     }
 
-    protected static void restartADBD(){
+/*    protected static void restartADBD(){
         try{
             Process su = Runtime.getRuntime().exec("su");
             DataOutputStream outputStream = new DataOutputStream(su.getOutputStream());
@@ -207,15 +206,15 @@ public class XperiaSettingsActivity extends AppCompatPreferenceActivity {
         }catch(IOException | InterruptedException e){
             Log.e(TAG, e.getMessage());
         }
-    }
+    }*/
 
     private static void confirmEnablingOTG() {
         DialogFragment newFragment = new EnableOTGDialog();
-        newFragment.show(mFragmentManager, "missiles");
+        newFragment.show(mFragmentManager, "otg");
     }
 
     private static void confirmEnablingADBON() {
         DialogFragment newFragment = new EnableADBONDialog();
-        newFragment.show(mFragmentManager, "missiles");
+        newFragment.show(mFragmentManager, "adb");
     }
 }
