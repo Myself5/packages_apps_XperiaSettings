@@ -1,4 +1,4 @@
-package de.myself5.xperiasettings;
+package sonyxperiadev.extendedsettings;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -9,26 +9,25 @@ import android.preference.SwitchPreference;
 
 /**
  * Created by myself5 on 9/6/16.
- * Dialog for enabling ADB Over Network.
+ * Dialog for enabling OTG.
  * Base on Googles fire missile dialog
  */
-public class EnableADBONDialog extends DialogFragment {
+public class EnableOTGDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.pref_description_adbonswitchdialog)
-                .setTitle(R.string.pref_title_adbonswitch)
+        builder.setMessage(R.string.pref_description_otgswitch)
+                .setTitle(R.string.pref_title_otgswitch)
                 .setPositiveButton(R.string.enable, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        XperiaSettingsActivity.setSystemProperty(XperiaSettingsActivity.PREF_ADB_NETWORK, "5555");
-/*                        XperiaSettingsActivity.restartADBD();*/
+                        ExtendedSettingsActivity.setSystemProperty(ExtendedSettingsActivity.PREF_ID_POLL_ENABLED, "true");
                     }
                 })
                 .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         SwitchPreference mSwitch = (SwitchPreference)
-                                XperiaSettingsActivity.mActivity.findPreference("adbon_switch");
+                                ExtendedSettingsActivity.mActivity.findPreference("otg_switch");
                         mSwitch.setChecked(false);
                     }
                 });

@@ -1,4 +1,4 @@
-package de.myself5.xperiasettings;
+package sonyxperiadev.extendedsettings;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
