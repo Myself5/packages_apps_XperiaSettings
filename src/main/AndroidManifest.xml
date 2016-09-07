@@ -23,7 +23,7 @@
                 android:value="com.android.settings.category.device" />
             <meta-data
                 android:name="com.android.settings.icon"
-                android:resource="@drawable/ic_xperia_settings" />
+                android:resource="@drawable/ic_extended_settings" />
         </activity>
     </application>
 </manifest>
